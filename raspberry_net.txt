@@ -1,0 +1,427 @@
+1. 操作系统下载：
+	https://www.raspberrypi.org/
+
+2. putty ssh登录远程：
+	默认账号是pi，密码是raspberry
+
+3. expand_rootfs 把整个系统的可用空间扩展到储存卡的大小
+	sudo raspi-config
+
+4. 重启：
+	sudo reboot
+
+5.安装启动VNC:
+	下载：https://www.realvnc.com/download/vnc/
+	sudo apt-get install tightvncserver
+	vncpasswd
+	vncserver :1 -geometry 800x600
+	vncserver -kill :1
+	vncviwer：192.168.1.108:1
+	
+6. 开机启动vnc桌面
+	sudo nano /etc/init.d/tightvncserver
+
+	写入以下内容:
+#!/bin/sh
+
+### BEGIN INIT INFO
+
+# Provides:          tightvncserver
+
+# Required-Start:    $local_fs
+
+# Required-Stop:     $local_fs
+
+# Default-Start:     2 3 4 5
+
+# Default-Stop:      0 1 6
+
+# Short-Description: Start/stop tightvncserver
+
+### END INIT INFO
+
+# More details see:
+
+# http://www.penguintutor.com/linux/tightvnc
+
+### Customize this entry
+
+# Set the USER variable to the name of the user to start tightvncserver under
+
+export USER=’pi’
+
+### End customization required
+
+eval cd ~$USER
+
+case ”$1” in
+
+  start)
+# 启动命令行。此处自定义分辨率、控制台号码或其它参数。
+
+    su $USER -c ’/usr/bin/tightvncserver -geometry 800x600 :1’
+
+    echo ”Starting TightVNC server for $USER ”
+
+    ;;
+
+  stop)
+
+    # 终止命令行。此处控制台号码与启动一致。
+
+    su $USER -c ’/usr/bin/tightvncserver -kill :1’
+
+    echo ”Tightvncserver stopped”
+
+    ;;
+
+  *)
+
+    echo ”Usage: /etc/init.d/tightvncserver {start|stop}”
+
+    exit 1
+
+    ;;
+
+esac
+
+exit 0
+
+配置：sudo chmod 755 /etc/init.d/tightvncserver
+      sudo update-rc.d tightvncserver defaults
+
+
+7. 配置无线WIFI：
+
+lsusb
+#如果无效，查看驱动是否加载
+lsmod
+#如果未加载，进行加载
+modprobe xxx
+
+sudo nano /etc/network/interfaces
+
+auto lo
+iface lo inet loopback
+iface eth0 inet dhcp
+auto wlan0
+allow-hotplug wlan0
+iface wlan0 inet dhcp
+wpa-ssid “你的wifi名称”
+wpa-psk “你的wifi密码”
+#wpa-roam /etc/wpa_supplicant/wpa_supplicant.conf       #注释掉这一行
+iface default inet dhcp
+
+auto lo //表示使用localhost
+iface eth0 inet dhcp //表示如果有网卡ech0, 则用dhcp获得IP地址 (这个网卡是本机的网卡，而不是WIFI网卡)
+auto wlan0 //表示如果有wlan设备，使用wlan0设备名
+allow-hotplug wlan0 //表示wlan设备可以热插拨
+iface wlan0 inet dhcp //表示如果有WLAN网卡wlan0 (就是WIFI网卡), 则用dhcp获得IP地址
+wpa-ssid “你的wifi名称”//表示连接SSID名
+wpa-psk “你的wifi密码”//表示连接WIFI网络时，使用wpa-psk认证方式，认证密码
+
+
+
+7. 支持中文：sudo apt-get install ttf-wqy-zenhei
+
+
+8. 更新源：
+中山大学
+Raspbian http://mirror.sysu.edu.cn/raspbian/raspbian/
+
+中国科学技术大学
+Raspbian http://mirrors.ustc.edu.cn/raspbian/raspbian/
+
+清华大学
+Raspbian http://mirrors.tuna.tsinghua.edu.cn/raspbian/raspbian/
+
+华中科技大学
+Raspbian http://mirrors.hustunique.com/raspbian/raspbian/
+Arch Linux ARM http://mirrors.hustunique.com/archlinuxarm/
+
+大连东软信息学院源（北方用户）
+Raspbian http://mirrors.neusoft.edu.cn/raspbian/raspbian/
+
+重庆大学源（中西部用户）
+Raspbian http://mirrors.cqu.edu.cn/Raspbian/raspbian/
+
+新加坡国立大学
+Raspbian http://mirror.nus.edu.sg/raspbian/raspbian
+
+牛津大学
+Raspbian http://mirror.ox.ac.uk/sites/archive.raspbian.org/archive/raspbian/
+
+韩国KAIST大学
+Raspbian http://ftp.kaist.ac.kr/raspbian/raspbian/
+
+
+使用方法：
+8.1 cd /etc/apt
+    cp sources.list sources.list_back
+    sudo nano sources.list
+
+    # 更新软件源
+    sudo apt-get update
+    # 更新软件
+    sudo apt-get upgrade
+
+sources.list：
+deb http://mirrors.ustc.edu.cn/raspbian/raspbian/ jessie main contrib non-free rpi
+deb-src http://mirrors.ustc.edu.cn/raspbian/raspbian/ jessie main contrib non-free rpi
+
+现在版本升级了，版本号要更改，把wheezy 改成jessie这样大部分源是在中国，不然像楼上那样升级，大部分源在国外
+
+
+9. 配置web服务器（nginx + php + sqlite）
+  9.1 安装nginx  web服务器 ：sudo apt-get install nginx
+      nginx的www默认根目录：/var/www/html
+      修改默认目录：
+	--sudo nano /etc/nginx/sites-available/default
+	--修改 root /var/www/html 和 fastcgi_param  SCRIPT_FILENAME  var/www/html$fastcgi_script_name;
+	--sudo /etc/init.d/nginx reload
+
+  9.2 安装php和sqlite: sudo apt-get install php5-fpm php5-sqlite
+  9.3 修改nginx的配置文件
+      --sudo nano /etc/nginx/sites-available/default
+      --找到listen行，将其前面的#号注释去掉，修改后内容如下
+        listen 80; ## listen for ipv4.
+      --找到index行，加入index.php，修改后内容如下
+	index index.php index.html index.htm
+      --找到php的定义段，将这些行的注释去掉 ，修改后内容如下
+	location ~ \.php$ {
+　	fastcgi_pass unix:/var/run/php5-fpm.sock;
+	fastcgi_param  SCRIPT_FILENAME  $document_root$fastcgi_script_name;
+　	fastcgi_index index.php;
+　	include fastcgi_params;
+	}
+      --重新加载nginx的配置: sudo /etc/init.d/nginx reload
+  9.4 测试php网页
+	<?PHP
+	phpinfo();
+	?>
+  9.5 网页访问出现403错误，修改文件夹权限；
+
+
+10 安装FTP
+
+1,安装vsftpd服务器 (约400KB)
+sudo apt-get install vsftpd
+
+2,启动ftp服务
+sudo service vsftpd start
+
+3,编辑vsftdp的配置文件
+sudo nano /etc/vsftpd.conf
+
+找到以下行，定义一下
+anonymous_enable=NO  
+表示：不允许匿名访问
+
+local_enable=YES   
+设定本地用户可以访问。
+
+write_enable=YES
+设定可以进行写操作
+
+local_umask=022
+设定上传后文件的权限掩码。
+
+存盘退出
+
+4, 重启vsftpd服务
+sudo service vsftpd restart
+
+5, 测试一下, OK
+通过ftp连接树莓派系统，以用户名pi登录，密码是raspberry
+ftp的根目录是/home/pi，即pi用户的HOME目录
+可上传或下载文件了
+
+
+11.
+1、安装Apache
+Apache可以用下面的命令来安装
+sudo apt-get install apache2
+Apache默认路径是/var/www/
+其配置文件路径为： /etc/apache2/
+可以通过：sudo vi /etc/apache2/ports.conf修改监听端口号
+重启服务生效：sudo service apache2 restart
+
+2、安装mysql
+sudo apt-get install mysql-server
+安装过程中，会出现一个提示符让你输入一个密码。
+这个密码是mysql root用户的密码。
+连接MYSQL： 
+    格式： mysql -h主机地址 -u用户名 －p用户密码 
+
+mysql并开启远程访问(开启3306端口):
+
+开启mysql远程访问
+3.1修改/etc/mysql/my.cnf文件
+找到下面这行，并用#注释掉，
+bind-address        = 127.0.0.1
+或者修改为bind-address        = 0.0.0.0
+3.2登录mysql，输入下面命令
+mysql>grant all privileges on *.* to username@"%" identified by "password";（username一般是root，password是新的密码）
+mysql> FLUSH PRIVILEGES;
+
+开启3306端口远程访问
+这里的iptable命令和centos中命令不一样，所以参考了一下文档，使用 ufw软件来开启3306端口
+4.1安装ufw
+apt-get installufw
+4.2启用ufw
+ufw enable
+ufw default deny
+4.3开启3306、22（ssh端口）端口
+ufw allow 3306 
+ufw allow 22 
+注意：如果不开启22端口，下次启动树莓派时，系统的22端口会禁用，不能使用ssh登录树莓派
+4.4 禁用
+sudo ufw disable
+4.5 查看状态：
+sudo ufw status 
+
+
+3、安装PHP
+输入下面的命令，就可以安装PHP 5,以及PHP访问mysql数据库所需要的库。
+sudo apt-get install php5
+sudo apt-get install php5-mysql
+sudo apt-get install php5-gd
+sudo apt-get install libapache2-mod-php5
+
+
+10：
+  1.vncserver :1 -geometry 800x600
+  2.sudo /etc/init.d/nginx start
+  3.sudo service vsftpd start
+  4.sudo service apache2 start
+  5.sudo service mysql start
+
+
+11.root：
+sudo passwd root
+sudo passwd --unlock root
+
+sudo nano /etc/ssh/sshd_config
+Ctrl + W 快捷键 搜索 PermitRootLogin without-password
+修改 PermitRootLogin without-password 为 PermitRootLogin yes
+reboot
+
+
+
+
+12.彻底卸载软件：
+1. sudo apt-get purge
+2. sudo apt-get autoremove
+3. sudo apt-get clean
+4. dpkg -l |grep ^rc|awk '{print $2}' |sudo xargs dpkg -P
+
+
+
+
+13.用户名密码：
+1. root  -- 123456
+2. pi    -- raspberry
+3. database: root  -- 123456
+4. ftp: pi -- raspberry
+5. oray z-liny   982716
+6. VNC : 123456
+
+
+gallery
+username: admin 
+password: 123456
+
+
+14. apache2 配置多端口多站点：
+
+	1. 修改：apache2.conf,添加新根目录访问权限：
+
+    <Directory /home/pi/docpicroot/note/>
+        Options Indexes Followsymlinks
+        AllowOverride None
+	Require all granted
+    </Directory>
+	
+	2. 修改ports.conf,监听新端口
+	NameVirtualhost localhost:8080
+	Listen 8080
+
+	3. 修改sites-available/000-default.conf,添加虚拟端口
+
+<virtualhost *:8383>
+    serveradmin webmaster@localhost
+
+    documentroot /home/pi/docpicroot/note-tmp
+    <directory />
+        options followsymlinks
+        allowoverride none
+    </directory>
+    <directory /home/pi/docpicroot/note-tmp/>
+        options indexes followsymlinks multiviews
+        allowoverride none
+        order allow,deny
+        allow from all
+    </directory>
+
+
+    errorlog /home/pi/docpicroot/note-tmp/logs/error.log
+
+    # possible values include: debug, info, notice, warn, error, crit,
+    # alert, emerg.
+    loglevel warn
+
+    customlog /home/pi/docpicroot/note-tmp/logs/access.log combined
+</virtualhost>
+
+15. linux 运行java程序jar： java -jar xxx.jar
+
+16. 
+
+2016.07.29 ：花生壳安装完成，正在绑定端口。
+2016.08.01 ：jar服务端可以运行，下一步调试服务端连接mysql；
+linux
+
+
+
+
+
+
+
+
+
+===========================================================================================================================
+window下调试环境：
+已安装 mysql：
+用户名：root
+密码：123456
+
+
+sqlserver：
+用户名：sa
+密码：123456
+
+github
+:https://github.com  
+用户名：z_liny@163.com
+密码：abcd.1234
+已有项目linyucc
+安装git bash
+
+
+1. Sqlserver转mysql方法：
+   软件 Mysql
+	Mysql图形界面——Navicat
+	SQL Server 2005
+	ODBC
+
+   转换
+	1.1. 在Navicat中新建连接，输入root密码连接到mysql，然后新建数据库；
+	1.2. 点击“导入向导”，选择ODBC，进入下一步；
+	1.3. 选择导入数据库源，选择“Microsoft OLE DB Provider for SQL Server”，点下一步；
+	1.4. 在下拉框中选择本机，选择相应服务器信息和源数据库名，并测试；
+	     服务名称：SH04738NBW\SQLEXPRESS
+	     
+	1.5. 测试连接成功后，点确定进入需要转换的表的选择，可以选择全选，甚至可以添加查询，我这里选择dbo.duser作为示例；
+	     连续点击两次下一步，进入表结构调整，注意这里要手动重新设置主键，不然后来会警告——表中没有主键。
+	1.6. 点下一步，进入导入模式选择：
+	1.7. 点击下一步进入最后阶段，点击开始就可以进行转换了：

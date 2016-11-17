@@ -1,0 +1,42 @@
+1. 完成搭建ssh远程访问
+2. 完成VNC访问
+3. 开机无线连接dapswifi
+4. 安装ftpserver
+5. 安装了nginx + php 默认端口81，root：/home/pi/picroot/www
+6. 安装了apache2 + php + mysql 默认端口 80（gallery3）,8282(记事本+mysql)，8383（记事本+html） ， root :/home/pi/docpicroot/
+7. 安装了花生壳内网穿透，由于默认公司使用总的路由，暂未添加内网映射成功。
+8. pc上安装navicat for mysql，但是pi上远程访问未开启；已完成
+9. 开启远程成功
+
+11. 实现navicat 远程访问 mysql。--done
+12. 将DBNotes.sql转成mysql数据
+13. 调试server端数据库的访问
+14. pc上安装mysql，调试链接及（sqlserver的sql文件）数据导入（已完成）
+15. （android云笔记）PC上实现android 客户端对server及数据库的访问-- 已完成
+
+UFW默认关闭，否则影响性能；
+
+next：
+
+1. 数据库导出到服务器  -已完成
+2. 实现访问服务器数据  -已完成
+3. 配置花生壳
+4. 优化界面
+5. 优化速度
+6. 解决bug
+
+7. WiFi配固定地址
+
+8. 搭建jsp服务器
+
+9. 重新check git 环境；代码及文档入库
+
+已完成开放的接口
+apache：
+80端口
+8282端口
+8383端口
+
+nginx：
+81端口
+
