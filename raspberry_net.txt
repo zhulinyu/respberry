@@ -401,11 +401,16 @@ sqlserver：
 密码：123456
 
 github
-:https://github.com  
-用户名：z_liny@163.com
-密码：abcd.1234
-已有项目linyucc
 安装git bash
+:https://github.com  
+注册邮箱：z_liny@163.com
+用户名：zhulinyu
+密码：abcd.1234
+
+已有项目:
+1.zhulinyu
+2.linyucc
+
 
 
 1. Sqlserver转mysql方法：
