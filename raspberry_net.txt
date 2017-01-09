@@ -4,6 +4,13 @@
 2. putty ssh登录远程：
 	默认账号是pi，密码是raspberry
 
+要想使用root帐号，或者说开启root用户，可使用pi用户登录，执行下面命令：
+sudo passwd root  
+执行此命令后系统会提示输入两遍的root密码
+接着输入下面命令，用来解锁root账户
+sudo passwd --unlook root  
+
+
 3. expand_rootfs 把整个系统的可用空间扩展到储存卡的大小
 	sudo raspi-config
 
@@ -237,7 +244,7 @@ ftp的根目录是/home/pi，即pi用户的HOME目录
 可上传或下载文件了
 
 
-11.
+11.web相关
 1、安装Apache
 Apache可以用下面的命令来安装
 sudo apt-get install apache2
@@ -289,7 +296,7 @@ sudo apt-get install php5-gd
 sudo apt-get install libapache2-mod-php5
 
 
-10：
+12：
   1.vncserver :1 -geometry 800x600
   2.sudo /etc/init.d/nginx start
   3.sudo service vsftpd start
@@ -297,7 +304,7 @@ sudo apt-get install libapache2-mod-php5
   5.sudo service mysql start
 
 
-11.root：
+13.root：
 sudo passwd root
 sudo passwd --unlock root
 
@@ -309,7 +316,7 @@ reboot
 
 
 
-12.彻底卸载软件：
+14.彻底卸载软件：
 1. sudo apt-get purge
 2. sudo apt-get autoremove
 3. sudo apt-get clean
@@ -318,21 +325,21 @@ reboot
 
 
 
-13.用户名密码：
+15.用户名密码：
 1. root  -- 123456
 2. pi    -- raspberry
 3. database: root  -- 123456
 4. ftp: pi -- raspberry
 5. oray z-liny   982716
 6. VNC : 123456
-
+7. movies：admin admin  pi  raspberry
 
 gallery
 username: admin 
 password: 123456
 
 
-14. apache2 配置多端口多站点：
+16. apache2 配置多端口多站点：
 
 	1. 修改：apache2.conf,添加新根目录访问权限：
 
@@ -373,21 +380,66 @@ password: 123456
     customlog /home/pi/docpicroot/note-tmp/logs/access.log combined
 </virtualhost>
 
-15. linux 运行java程序jar： java -jar xxx.jar
+17. linux 运行java程序jar： java -jar xxx.jar
 
-16. 
+18. 安装流媒体相关服务器：
+18.1 安装samba
+	sudo apt-get update
+	sudo apt-get install samba samba-common-bin
+==============================================================
+	/etc/samba/smb.conf文件，在其最后添加以下命令：
+[share]                                   #共享文件的名称，将在网络上以此名称显示
+        path = /home/pi/samba                     #共享文件的路径
+        valid users = root pi             #允许访问的用户，这里我用的是root 和 pi 两个用户
+        browseable = yes                  #允许浏览                                 
+        public = yes                      #共享开放                                      
+        writable = yes                    #可写
+==============================================================  
+        /etc/init.d/samba restart
+	添加共享用户：smbpasswd -a pi
 
+chown -R keesail:keesail ./local
+ 
+赋予local目录给keesail权限 
+ 
+chmod 760 ./local
+ 
+note:
 2016.07.29 ：花生壳安装完成，正在绑定端口。
 2016.08.01 ：jar服务端可以运行，下一步调试服务端连接mysql；
 linux
 
+18.2 安装minidlna
+	sudo apt-get install minidlna
+	设置/etc/minidlna.conf文件，在文件尾部添加如下内容：
+================================================================
+	media_dir=A,/home/pi/External_Disk/samba/DLNA/Music                #A表示这个目录是存放音乐的，当minidlna读到配置文件时，它会自动加载这个目录下的音乐文件
+	media_dir=P,/home/pi/External_Disk/samba/DLNA/Picture                                               
+	media_dir=V,/home/pi/External_Disk/samba/DLNA/Video                                                 
+	db_dir=/home/pi/External_Disk/samba/DLNA/db                       #配置minidlna的数库数据的存放目录
+	log_dir=/home/pi/External_Disk/samba/DLNA/log                     #配置日志目录
+================================================================
+	重启minidlna:/etc/init.d/minidlna restart
+	测试：/etc/init.d/minidlna status
 
 
 
+19 挂载 usb移动硬盘：
 
+19.1 MiniTool格式化硬盘位ext4格式
+19.2 df -h
+19.3 umount /dev/sda5
+     mount  /dev/sda5 /home/pi/External_Disk/usbdisk
+19.4 自动挂载：/etc/fstab  添加一行
+第一列：磁盘分区名/卷标，一般是/dev/sdaN（N表示正整数）
 
+第二列：挂载点，我们在这里把/dev/sda1挂到/samba上。
 
+第三列：缺省设置，一般用defautls。
 
+第四列：是否备份：0——表示不做 dump 备份；1——表示要将整个 <fie sysytem> 里的内容备份；2 也表示要做 dump 备份，但该分区的重要性比 1 小。
+
+第五列：检测顺序：0——不进行检测；根分区（/），必须填写 1，其它的都不能填写 1。如果有分区填写大于 1 的话，则在检查完根分区后，从小到大依次检查下去。
 
 ===========================================================================================================================
 window下调试环境：
@@ -411,7 +463,9 @@ github
 1.zhulinyu
 2.linyucc
 
-
+samba：
+用户名：pi
+密码：raspberry
 
 1. Sqlserver转mysql方法：
    软件 Mysql

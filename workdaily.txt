@@ -7,6 +7,7 @@
 7. 安装了花生壳内网穿透，由于默认公司使用总的路由，暂未添加内网映射成功。
 8. pc上安装navicat for mysql，但是pi上远程访问未开启；已完成
 9. 开启远程成功
+10. 安装samba和DLNA成功
 
 11. 实现navicat 远程访问 mysql。--done
 12. 将DBNotes.sql转成mysql数据
@@ -20,7 +21,7 @@ next：
 
 1. 数据库导出到服务器  -已完成
 2. 实现访问服务器数据  -已完成
-3. 配置花生壳
+3. 配置花生壳：http://tieba.baidu.com/p/3515537928
 4. 优化界面
 5. 优化速度
 6. 解决bug
@@ -36,6 +37,7 @@ apache：
 80端口
 8282端口
 8383端口
+8686端口 管理员/e/admin/index.php
 
 nginx：
 81端口
